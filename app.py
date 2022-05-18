@@ -11,25 +11,13 @@ with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.safe_load(ymlfile)
 start, end = cfg['start'], cfg['end']
 
-def extract_data(jsonData):
-    # Extracting data from json
+def extract_data(jsonData : dict) -> list:
+    # Extracting data from json file
         jsonData = jsonData['data']
-        animeID = jsonData['mal_id']
-        title  = jsonData['title']
-        type = jsonData['type']
-        source = jsonData['source']
-        episodes = jsonData['episodes']
-        status = jsonData['status']
-        duration = jsonData['duration']
-        rating = jsonData['rating']
-        score = jsonData['score']
-        scored_by = jsonData['scored_by']
-        rank = jsonData['rank']
-        popularity = jsonData['popularity']
-        members = jsonData['members']
-        favorites = jsonData['favorites']
-        season = jsonData['season']
-        year = jsonData['year']
+        dataLabel = ['mal_id','title','type','source','episodes','status',
+                     'duration','rating','score','scored_by','rank','popularity',
+                     'members','favorites','season','year']
+        animeID,title,type,source,episodes,status,duration,rating,score,scored_by,rank,popularity,members,favorites,season,year = [jsonData[i] for i in dataLabel]
         producers = []
         for j in range(0, len(jsonData['producers'])):
                     producers.append(jsonData['producers'][j]['name'])
@@ -45,7 +33,7 @@ def extract_data(jsonData):
         # append all into a list
         return [animeID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes]
 
-with open('AnimeList.csv', 'w', newline='') as csvfile:
+with open(cfg['output'], 'w', newline='') as csvfile:
             # ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes
             csvfile.write('ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes\n')
 for i in range(start,end):
@@ -97,13 +85,12 @@ for i in range(start,end):
             except:
                 print('Error 404 occured while scraping anime ID {}, skipping.'.format(i))
                 continue
-
             # Get data from JSON
             data = extract_data(jsonData)
             data = [data]
             
             # Write data to CSV
-            with open('AnimeList.csv', 'a', newline='', encoding="utf-8") as csvfile:
+            with open(cfg['output'], 'a', newline='', encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(data)
             print('Successfully scraped anime ID {}'.format(i))
