@@ -5,6 +5,12 @@ This is a Scraper that utilize Jikan API to crawl data from MyAnimeList. It serv
 
 
 ## How to use
+Example:
+Start scraping a new.
 ```py
-placeholder
+py scraping.py -output 'AnimeList.csv'
+```
+Resuming scraping from id 100.
+```py
+py scraping.py --start 100 --resume
 ```
