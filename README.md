@@ -8,7 +8,7 @@ This is a Scraper that utilize Jikan API to crawl data from MyAnimeList. It serv
 Example:
 Start scraping a new.
 ```py
-py scraping.py -output 'AnimeList.csv'
+py scraping.py --output 'AnimeList.csv'
 ```
 Resuming scraping from id 100.
 ```py
