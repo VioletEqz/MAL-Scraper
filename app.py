@@ -3,18 +3,13 @@ import json
 import csv
 import sys
 import time
-import argparse
-from tqdm import tqdm,trange
+import yaml
 
-def get_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-s', '--start', type=int, default='1', help='Starting index', required=False)
-    parser.add_argument('-e', '--end', type=int, default='50000', help='Ending index', required=False)
-    parser.add_argument('-o', '--output', type=str, default='AnimeList.csv', help='Output file name', required=False)
-    # Maybe continuation?
-    parser.add_argument('--resume', nargs='?', const=True, default=False, help='resume most recent training')
 
-    return parser.parse_args()
+# load config from yaml
+with open("config.yaml", 'r') as ymlfile:
+    cfg = yaml.load(ymlfile)
+start, end = cfg['start'], cfg['end']
 
 def extract_data(jsonData):
     # Extracting data from json
@@ -50,20 +45,10 @@ def extract_data(jsonData):
         # append all into a list
         return [animeID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes]
 
-
-
-if __name__=="__main__":
-    # Get arguments if ran from command line
-    opt = get_args()
-    # Staging new file for writing 
-    if not opt.resume:
-        with open(opt.output, 'w', newline='') as csvfile:
+with open('AnimeList.csv', 'w', newline='') as csvfile:
             # ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes
             csvfile.write('ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes\n')
-
-    # Main loop for scraping anime from Jikan API
-    # ID start from 1 to 51418 (as of 17/05/2022) for anime
-    for i in range(opt.start,opt.end):
+for i in range(start,end):
         # Jikan REST API call method:
         # https://api.jikan.moe/v4/anime/{id}
         # for more info about Jikan API visit:
@@ -118,10 +103,8 @@ if __name__=="__main__":
             data = [data]
             
             # Write data to CSV
-            with open(opt.output, 'a', newline='', encoding="utf-8") as csvfile:
+            with open('AnimeList.csv', 'a', newline='', encoding="utf-8") as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerows(data)
             print('Successfully scraped anime ID {}'.format(i))
-
-    csvfile.close()
 
