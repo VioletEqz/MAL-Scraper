@@ -8,7 +8,7 @@ import yaml
 
 # load config from yaml
 with open("config.yaml", 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
+    cfg = yaml.safe_load(ymlfile)
 start, end = cfg['start'], cfg['end']
 
 def extract_data(jsonData):
