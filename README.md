@@ -4,6 +4,7 @@ This is a Scraper that utilize Jikan API to crawl data from [MyAnimeList](https:
 
 ## Explanation
 As there have been lots of anime released since the first one was registered in MAL DB, it's highly recommended one utilize multi-thread approach to scrape such big data cluster. Whilst our scraper currently doesn't use the forementioned approach, it's however, multi-thread-compatible. We have also introduced a version where one can easily deploy to non-paid Cloud Application Platform such as Heroku, which will be directly linked to a Google Spreadsheet through OAuth2 with some uses of open-sourced APIs.
+
 As for how the scraper works, it's highly recommended that one went through [JikanV4](https://docs.api.jikan.moe/) docs firsthand as it heavily rely on it. 
 ## Pre-scraped Data
 As for those that are short on time or want to have a preview on the data, we have published Spreadsheet for those interested.
