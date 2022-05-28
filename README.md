@@ -23,7 +23,10 @@ py src/scraping.py --start 100 --resume
 ```
 ## Reference
 [JikanV4](https://docs.api.jikan.moe/) which this scraper heavily relied on.
+
 [Google OAuth2](https://developers.google.com/identity/protocols/oauth2) as the web-server authentication protocol we used.
+
 [Google API](https://github.com/googleapis/google-auth-library-python) for server-to-server authentication mechanisms to Google API.
+
 [Gspread](https://github.com/burnash/gspread) for a simple automatable way to access and edit Spreadsheet from server-side.
 
