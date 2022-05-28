@@ -15,40 +15,35 @@ def get_args():
 
     return parser.parse_args()
 
-def extract_data(jsonData):
-    # Extracting data from json
+def extract_data(jsonData : dict) -> list:
+    # Extracting data from json file
         jsonData = jsonData['data']
-        animeID = jsonData['mal_id']
-        title  = jsonData['title']
-        type = jsonData['type']
-        source = jsonData['source']
-        episodes = jsonData['episodes']
-        status = jsonData['status']
-        duration = jsonData['duration']
-        rating = jsonData['rating']
-        score = jsonData['score']
-        scored_by = jsonData['scored_by']
-        rank = jsonData['rank']
-        popularity = jsonData['popularity']
-        members = jsonData['members']
-        favorites = jsonData['favorites']
-        season = jsonData['season']
-        year = jsonData['year']
-        producers = []
+        dataLabel = ['mal_id','title','type','source','episodes','status',
+                     'duration','rating','score','scored_by','rank','popularity',
+                     'members','favorites','season','year']
+        animeID,title,type,source,episodes,status,duration,rating,score,scored_by,rank,popularity,members,favorites,season,year = [jsonData[i] for i in dataLabel]
+        producerList = []
         for j in range(0, len(jsonData['producers'])):
-                    producers.append(jsonData['producers'][j]['name'])
-        studios = []
+                    producerList.append(jsonData['producers'][j]['name'])
+        studioList = []
         for j in range(0, len(jsonData['studios'])):
-                    studios.append(jsonData['studios'][j]['name'])
-        genres = []
+                    studioList.append(jsonData['studios'][j]['name'])
+        genreList = []
         for j in range(0, len(jsonData['genres'])):
-                    genres.append(jsonData['genres'][j]['name'])
-        themes = []
+                    genreList.append(jsonData['genres'][j]['name'])
+        themeList = []
         for j in range(0, len(jsonData['themes'])):
-                    themes.append(jsonData['themes'][j]['name'])
-        # append all into a list
-        return [animeID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes]
-
+                    themeList.append(jsonData['themes'][j]['name'])
+        # Return after appending to a list
+        return [
+            animeID, title, type, source,
+            episodes, status, duration, rating,
+            score, scored_by, rank, popularity,
+            members, favorites, season, year,
+            ', '.join(producerList),
+            ', '.join(studioList),
+            ', '.join(genreList),
+            ', '.join(themeList)]
 
 
 if __name__=="__main__":
@@ -58,7 +53,12 @@ if __name__=="__main__":
     if not opt.resume:
         with open(opt.output, 'w', newline='') as csvfile:
             # ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes
-            csvfile.write('ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes\n')
+            csvfile.write(
+                'ID, title, type, source,\
+                episodes, status, duration, rating,\
+                score, scored_by, rank, popularity,\
+                members, favorites, season, year,\
+                producers, studios, genres, themes\n')
 
     # Main loop for scraping anime from Jikan API
     # ID start from 1 to 51418 (as of 17/05/2022) for anime

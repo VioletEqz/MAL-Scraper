@@ -5,11 +5,32 @@ import sys
 import time
 import yaml
 
+import gspread
+import json
+from google.oauth2 import service_account
 
 # load config from yaml
 with open("config.yaml", 'r') as ymlfile:
     cfg = yaml.safe_load(ymlfile)
 start, end = cfg['start'], cfg['end']
+
+# Specify scopes for OAUth2
+scope = [
+    'https://spreadsheets.google.com/feeds', 
+    'https://www.googleapis.com/auth/drive'
+    ]
+
+# Read JSON cred
+with open('client_secret.json') as f:
+    json_cred = json.load(f)
+    credentials = service_account.Credentials.from_service_account_info(
+        json_cred)
+
+scoped_credentials = credentials.with_scopes(scope)
+
+# Connect to Google Sheet API
+client = gspread.authorize(scoped_credentials)
+sheet = client.open('CrawledAnimeList').sheet1
 
 def extract_data(jsonData : dict) -> list:
     # Extracting data from json file
@@ -18,24 +39,41 @@ def extract_data(jsonData : dict) -> list:
                      'duration','rating','score','scored_by','rank','popularity',
                      'members','favorites','season','year']
         animeID,title,type,source,episodes,status,duration,rating,score,scored_by,rank,popularity,members,favorites,season,year = [jsonData[i] for i in dataLabel]
-        producers = []
+        producerList = []
         for j in range(0, len(jsonData['producers'])):
-                    producers.append(jsonData['producers'][j]['name'])
-        studios = []
+                    producerList.append(jsonData['producers'][j]['name'])
+        studioList = []
         for j in range(0, len(jsonData['studios'])):
-                    studios.append(jsonData['studios'][j]['name'])
-        genres = []
+                    studioList.append(jsonData['studios'][j]['name'])
+        genreList = []
         for j in range(0, len(jsonData['genres'])):
-                    genres.append(jsonData['genres'][j]['name'])
-        themes = []
+                    genreList.append(jsonData['genres'][j]['name'])
+        themeList = []
         for j in range(0, len(jsonData['themes'])):
-                    themes.append(jsonData['themes'][j]['name'])
-        # append all into a list
-        return [animeID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes]
+                    themeList.append(jsonData['themes'][j]['name'])
+        # Return after appending to a list
+        return [
+            animeID, title, type, source,
+            episodes, status, duration, rating,
+            score, scored_by, rank, popularity,
+            members, favorites, season, year,
+            ', '.join(producerList),
+            ', '.join(studioList),
+            ', '.join(genreList),
+            ', '.join(themeList)]
 
-with open(cfg['output'], 'w', newline='') as csvfile:
-            # ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes
-            csvfile.write('ID, title, type, source, episodes, status, duration, rating, score, scored_by, rank, popularity, members, favorites, season, year, producers, studios, genres, themes\n')
+# Create first row
+row = 'ID, title, type, source,\
+    episodes, status, duration, rating,\
+    score, scored_by, rank, popularity,\
+    members, favorites, season, year,\
+    producers, studios, genres, themes'.split(', ')
+row = [x.strip() for x in row]
+sheet.update('A1:T1', [row])
+
+# Start writing data after the first row (A2)
+row_count = 2
+
 for i in range(start,end):
         # Jikan REST API call method:
         # https://api.jikan.moe/v4/anime/{id}
@@ -89,9 +127,10 @@ for i in range(start,end):
             data = extract_data(jsonData)
             data = [data]
             
-            # Write data to CSV
-            with open(cfg['output'], 'a', newline='', encoding="utf-8") as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerows(data)
+            # Write data to sheet
+            sheet.update('A'+str(row_count)+':T'+str(row_count), data)
+            row_count += 1
+
+            # Report to console
             print('Successfully scraped anime ID {}'.format(i))
 

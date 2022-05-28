@@ -131,3 +131,4 @@ dmypy.json
 # Custom
 CMD.bat
 *.csv
+client_secret.json
